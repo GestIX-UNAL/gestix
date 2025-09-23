@@ -2,7 +2,7 @@
 
 1. **Create virtual environment:**
     ```bash
-    python3 -m venv .venv
+    python3.11 -m venv .venv 
     ```
 
 2. **Activate virtual environment:**

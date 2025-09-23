@@ -1,1 +1,4 @@
 screen-brightness-control
+mediapipe  
+opencv-python
+numpy
