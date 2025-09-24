@@ -21,15 +21,7 @@ def main():
         print("✅ Sistema iniciado correctamente")
         print("📷 Cámara activada")
         print("🔆 Controlador de brillo registrado")
-        print()
-        print("Gestos disponibles:")
-        print("   🤏 Mano izquierda con 1 dedo: Activar control de brillo")
-        print("   ✋ + 🤏: Subir brillo")
-        print("   ✊ + 🤏: Bajar brillo")
-        print()
-        print("Presiona 'q' para salir")
-        print("-" * 50)
-        
+
         # Iniciar el bucle principal
         camera.run()
         
