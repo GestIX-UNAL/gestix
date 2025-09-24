@@ -1,9 +1,23 @@
 import cv2
 from app.utils.flags import Flags
+from core.modules.brightness.brightness import Brightness
 
 class BrightnessController:
     def __init__(self):
-        self.brightness = 50
+        # Usar la clase Brightness del core para controlar realmente el brillo
+        self.brightness_core = Brightness()
+        # Obtener el brillo actual del sistema
+        try:
+            current_brightness = self.brightness_core.getBrightness()
+            # Manejar el caso donde getBrightness retorna una lista
+            if isinstance(current_brightness, list):
+                self.brightness = current_brightness[0] if current_brightness else 50
+            else:
+                self.brightness = current_brightness
+        except Exception as e:
+            print(f"Warning: No se pudo obtener el brillo actual: {e}")
+            self.brightness = 50  # Valor por defecto
+        
         self.min_brightness = 0
         self.max_brightness = 100
         self.brightness_step = 2
@@ -12,6 +26,13 @@ class BrightnessController:
         """
         Procesa los gestos específicos de brillo y retorna el frame modificado y mensaje
         """
+        # Sincronizar con el brillo actual del sistema ocasionalmente
+        # (evitar hacerlo en cada frame para no impactar el rendimiento)
+        import time
+        if not hasattr(self, '_last_sync') or time.time() - self._last_sync > 5:
+            self.sync_brightness()
+            self._last_sync = time.time()
+        
         # Detectar gestos específicos de brillo
         gesture_detected, message = self.detect_brightness_gesture(hand_landmarks_list, hand_labels)
         
@@ -79,18 +100,60 @@ class BrightnessController:
         
     def apply_brightness(self):
         """
-        Aplica el brillo al sistema (aquí iría la lógica específica del sistema)
-        Por ahora solo retorna el valor para testing
+        Aplica el brillo al sistema usando la clase Brightness del core
         """
-        # TODO: Implementar la lógica real para cambiar el brillo del sistema
-        return self.brightness
+        try:
+            # Aplicar el brillo real al sistema
+            self.brightness_core.setBrightness(int(self.brightness))
+            print(f"✅ Brillo aplicado: {self.brightness}%")
+            return self.brightness
+        except Exception as e:
+            print(f"❌ Error al aplicar brillo: {e}")
+            return None
+    
+    def sync_brightness(self):
+        """
+        Sincroniza el valor interno con el brillo actual del sistema
+        """
+        try:
+            current_brightness = self.brightness_core.getBrightness()
+            if isinstance(current_brightness, list):
+                # Si hay múltiples monitores, tomar el primero
+                current_brightness = current_brightness[0] if current_brightness else 50
+            self.brightness = current_brightness
+            return self.brightness
+        except Exception as e:
+            print(f"Warning: No se pudo sincronizar el brillo: {e}")
+            return self.brightness
+    
+    def get_available_monitors(self):
+        """
+        Obtiene la lista de monitores disponibles
+        """
+        try:
+            monitors = self.brightness_core.getMonitors()
+            return monitors
+        except Exception as e:
+            print(f"Warning: No se pudo obtener la lista de monitores: {e}")
+            return []
         
     def draw_brightness_info(self, frame):
         """
         Dibuja información específica del control de brillo en el frame
         """
+        # Información principal del brillo
         cv2.putText(frame, f"Brightness: {self.brightness}%", (10, 150), 
                    cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2)
+        
+        # Información adicional sobre el estado
+        try:
+            monitors = self.get_available_monitors()
+            if monitors:
+                cv2.putText(frame, f"Monitors: {len(monitors)}", (10, 180), 
+                           cv2.FONT_HERSHEY_SIMPLEX, 0.5, (200, 200, 200), 1)
+        except:
+            cv2.putText(frame, "Monitor info: N/A", (10, 180), 
+                       cv2.FONT_HERSHEY_SIMPLEX, 0.5, (200, 200, 200), 1)
         
         # Barra visual del brillo
         bar_width = 200
@@ -104,6 +167,9 @@ class BrightnessController:
         # Barra de progreso
         progress_width = int((self.brightness / self.max_brightness) * bar_width)
         cv2.rectangle(frame, (bar_x, bar_y), (bar_x + progress_width, bar_y + bar_height), (0, 255, 255), -1)
+        
+        # Borde de la barra
+        cv2.rectangle(frame, (bar_x, bar_y), (bar_x + bar_width, bar_y + bar_height), (255, 255, 255), 1)
         
         return frame
         
