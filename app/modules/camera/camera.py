@@ -3,8 +3,9 @@ import mediapipe as mp
 from app.utils.flags import Flags
 
 class Camera:
-    def __init__(self, camera_id=0):
+    def __init__(self, camera_id=0, show_window=True):
         self.camera_id = camera_id
+        self.show_window = show_window
         self.cap = cv2.VideoCapture(camera_id)
         self.mp_hands = mp.solutions.hands
         self.hands = self.mp_hands.Hands(
@@ -95,8 +96,9 @@ class Camera:
                 hand_landmarks_list.append(hand_landmarks)
                 hand_labels.append(label)
                 
-                # Dibujar las conexiones de la mano
-                self.mp_draw.draw_landmarks(frame, hand_landmarks, self.mp_hands.HAND_CONNECTIONS)
+                # Solo dibujar las conexiones si se va a mostrar la ventana
+                if self.show_window:
+                    self.mp_draw.draw_landmarks(frame, hand_landmarks, self.mp_hands.HAND_CONNECTIONS)
         
         return frame, hand_landmarks_list, hand_labels
         
@@ -104,6 +106,8 @@ class Camera:
         """
         Bucle principal que detecta flags y delega a los controladores específicos
         """
+        frame_count = 0  # Para mostrar información periódica en modo silencioso
+        
         while True:
             frame, hand_landmarks_list, hand_labels = self.detect_hands()
             
@@ -116,23 +120,40 @@ class Camera:
                     controller = self.controllers[detected_flag]
                     frame, message = controller.process_gesture(frame, hand_landmarks_list, hand_labels)
                     
-                    # Mostrar mensaje del controlador
-                    if message:
+                    # En modo silencioso, imprimir información en consola
+                    if not self.show_window and message:
+                        print(f"🎯 {message}")
+                    
+                    # En modo visual, mostrar mensaje en la imagen
+                    if self.show_window and message:
                         cv2.putText(frame, message, (10, 110), 
                                    cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
                 
-                # Mostrar información básica
-                cv2.putText(frame, f"Hands detected: {len(hand_landmarks_list)}", (10, 30), 
-                           cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
-                
-                if detected_flag:
-                    cv2.putText(frame, f"Flag: {detected_flag.value}", (10, 70), 
-                               cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 255), 2)
-                
-                cv2.imshow('Gesture Control System', frame)
-                
-                if cv2.waitKey(1) & 0xFF == ord('q'):
-                    break
+                # Solo mostrar la ventana si está habilitada
+                if self.show_window:
+                    # Mostrar información básica
+                    cv2.putText(frame, f"Hands detected: {len(hand_landmarks_list)}", (10, 30), 
+                               cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+                    
+                    if detected_flag:
+                        cv2.putText(frame, f"Flag: {detected_flag.value}", (10, 70), 
+                                   cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 255), 2)
+                    
+                    cv2.imshow('Gesture Control System', frame)
+                    
+                    if cv2.waitKey(1) & 0xFF == ord('q'):
+                        break
+                else:
+                    # En modo silencioso, mostrar información cada 100 frames
+                    frame_count += 1
+                    if frame_count % 100 == 0:
+                        print(f"👀 Monitoreando gestos... (manos detectadas: {len(hand_landmarks_list)})")
+                        if detected_flag:
+                            print(f"🚩 Flag detectada: {detected_flag.value}")
+                    
+                    # Usar una pausa muy pequeña para no consumir demasiada CPU
+                    if cv2.waitKey(1) & 0xFF == ord('q'):
+                        break
         
         self.release()
     
@@ -141,7 +162,8 @@ class Camera:
         Libera los recursos de la cámara
         """
         self.cap.release()
-        cv2.destroyAllWindows()
+        if self.show_window:
+            cv2.destroyAllWindows()
         
 if __name__ == "__main__":
     camera = Camera()

@@ -24,3 +24,7 @@
     ```bash
     sudo .venv/bin/python main.py
     ```
+5. If you want to run it with the camera, then use:
+    ```bash
+    sudo .venv/bin/python main.py --camera
+    ```
