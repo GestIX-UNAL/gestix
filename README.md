@@ -73,7 +73,7 @@ cd gestix
 pip install -r requirements.txt
 
 # Ejecutar el sistema
-python gestix.py
+python main.py
 ```
 
 ## 📋 Requisitos del Sistema
