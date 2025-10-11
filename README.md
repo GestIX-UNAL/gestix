@@ -3,7 +3,7 @@
 **Universidad Nacional de Colombia**
 
 ![License](https://img.shields.io/github/license/GestIX-UNAL/gestix)
-![Python](https://img.shields.io/badge/python-3.8+-blue.svg)
+![Python](https://img.shields.io/badge/python-3.11+-blue.svg)
 ![OpenCV](https://img.shields.io/badge/opencv-4.0+-green.svg)
 ![MediaPipe](https://img.shields.io/badge/mediapipe-latest-orange.svg)
 
@@ -78,10 +78,20 @@ python main.py
 
 ## 📋 Requisitos del Sistema
 
-- **SO**: GNU/Linux (Ubuntu 18.04+ recomendado)
-- **Python**: 3.8 o superior
+- **SO**: GNU/Linux
+- **Python**: 3.11 o superior
 - **Cámara**: Dispositivo de captura de video compatible
 - **Hardware**: Procesador con capacidades de procesamiento de video
+
+## 🧪 Metodología: Lean UX y Prototipado Ágil
+
+Trabajaremos en ciclos cortos (Build–Measure–Learn) con PoC/prototipos para validar hipótesis y decidir si avanzamos, ajustamos o pivoteamos.
+
+### Proof of Concept (PoC)
+
+- **Pinch Gesture Detection**: Implementación inicial usando MediaPipe y OpenCV para detectar el gesto de pellizco. [Ver código](poc/pinch_poc.py)
+- **Palm Open Gesture Detection**: Implementación inicial para detectar la palma abierta. [Ver código](poc/palm_open_poc.py)
+- **Thumbs Up/Down Gesture Detection**: Implementación inicial para detectar el gesto de pulgar arriba/abajo. [Ver código](poc/thumbs_up_down_poc.py)
 
 ## 🤝 Contribución
 
