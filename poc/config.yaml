@@ -1,0 +1,10 @@
+camera:
+  index: 0
+  mirror: true
+gesture:
+  pinch_threshold: 0.15
+  draw_landmarks: true
+ui:
+  font_scale: 1
+  color_normal: [0, 0, 255]
+  color_pinch: [0, 255, 0]

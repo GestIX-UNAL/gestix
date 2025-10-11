@@ -3,7 +3,7 @@
 **Universidad Nacional de Colombia**
 
 ![License](https://img.shields.io/github/license/GestIX-UNAL/gestix)
-![Python](https://img.shields.io/badge/python-3.8+-blue.svg)
+![Python](https://img.shields.io/badge/python-3.11+-blue.svg)
 ![OpenCV](https://img.shields.io/badge/opencv-4.0+-green.svg)
 ![MediaPipe](https://img.shields.io/badge/mediapipe-latest-orange.svg)
 
