@@ -4,6 +4,7 @@ camera:
 gesture:
   pinch_threshold: 0.15
   draw_landmarks: true
+  palm_min_fingers: 4
 ui:
   font_scale: 1
   color_normal: [0, 0, 255]

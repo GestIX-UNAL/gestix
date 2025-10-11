@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial project setup
 - Pinch gesture detection PoC using MediaPipe and OpenCV
+- Palm open gesture detection PoC using MediaPipe and OpenCV
 - Configuration file support with YAML
 
 ### Changed
