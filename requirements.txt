@@ -1,4 +1,4 @@
-screen-brightness-control
-mediapipe  
-opencv-python
-numpy
+numpy>=1.22,<1.27
+opencv-python>=4.5,<5.0
+mediapipe>=0.10,<0.13
+screen-brightness-control>=0.24.0,<1.0
