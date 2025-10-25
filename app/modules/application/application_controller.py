@@ -1,10 +1,7 @@
 import cv2
 import subprocess
-from app.utils.flags import Flags
 import os
-import pwd
-
-username = os.getlogin()
+from app.utils.flags import Flags
 
 
 class ApplicationController:
@@ -123,25 +120,48 @@ class ApplicationController:
         
     def open_firefox(self):
         """
-        Abre Firefox usando subprocess.
+        Abre Firefox usando subprocess y xdg-open.
         
-        Intenta abrir Firefox de manera no bloqueante.
+        Como el script se ejecuta con sudo, necesitamos ejecutar Firefox
+        como el usuario real (no como root) usando sudo -u.
+        Esto es necesario porque:
+        - Firefox no debe ejecutarse como root por seguridad
+        - xdg-open necesita acceso al display del usuario
+        
+        Intenta obtener el usuario real y abrir Firefox de manera no bloqueante.
         Si falla, imprime un mensaje de error.
         """
-        
         try:
-          
-            subprocess.Popen(
-                ['sudo', '-u', username, 'xdg-open', 'http://www.mozilla.org/firefox/new/'],
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL
-            )
-
+            # Obtener el usuario real (no root) de varias formas
+            # SUDO_USER es la variable que contiene el usuario original cuando se usa sudo
+            username = os.environ.get('SUDO_USER') or os.environ.get('USER') or os.getlogin()
+            
+            if not username or username == 'root':
+                print("⚠️  Advertencia: Ejecutando como root, Firefox se abrirá como root")
+                # Intentar abrir sin sudo si no hay usuario
+                subprocess.Popen(
+                    ['xdg-open', 'https://www.mozilla.org'],
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                    start_new_session=True
+                )
+            else:
+                # Abrir como el usuario real usando sudo -u
+                subprocess.Popen(
+                    ['sudo', '-u', username, 'xdg-open', 'https://www.mozilla.org'],
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                    start_new_session=True
+                )
+            
+            print(f"✅ Firefox abierto correctamente para el usuario: {username}")
             
         except FileNotFoundError:
-            print("❌ Error: Firefox no está instalado o no se encuentra en el PATH")
+            print("❌ Error: xdg-open no está disponible")
+            print("💡 Intenta instalar: sudo apt install xdg-utils")
         except Exception as e:
             print(f"❌ Error al abrir Firefox: {e}")
+            print("💡 Asegúrate de ejecutar con: sudo .venv/bin/python main.py --camera")
         
     def draw_application_info(self, frame):
         """
