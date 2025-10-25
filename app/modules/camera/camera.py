@@ -3,7 +3,28 @@ import mediapipe as mp
 from app.utils.flags import Flags
 
 class Camera:
+    """
+    Clase principal para la detección de manos y gestos usando MediaPipe.
+    
+    Esta clase se encarga de:
+    - Capturar video de la cámara
+    - Detectar manos y contar dedos
+    - Identificar gestos que activan diferentes flags/modos
+    - Delegar el procesamiento a controladores específicos
+    
+    Gestos detectados (mano izquierda):
+    - 1 dedo levantado: Activa BRIGHTNESS (control de brillo)
+    - 3 dedos levantados: Activa APPLICATION (control de aplicaciones)
+    """
+    
     def __init__(self, camera_id=0, show_window=True):
+        """
+        Inicializa la cámara y el sistema de detección de manos.
+        
+        Args:
+            camera_id: ID de la cámara a usar (default: 0)
+            show_window: Si True, muestra la ventana visual (default: True)
+        """
         self.camera_id = camera_id
         self.show_window = show_window
         self.cap = cv2.VideoCapture(camera_id)
@@ -18,6 +39,16 @@ class Camera:
         self.controllers = {}  # Dictionary para almacenar los controladores
         
     def count_fingers(self, landmarks):
+        """
+        Cuenta el número de dedos levantados en una mano.
+        
+        Args:
+            landmarks: Landmarks de la mano detectada por MediaPipe
+            
+        Returns:
+            list: Lista con 1 (levantado) o 0 (no levantado) para cada dedo
+                  [pulgar, índice, medio, anular, meñique]
+        """
         fingers = []
         # Thumb
         if landmarks[4].x > landmarks[3].x:
@@ -34,11 +65,24 @@ class Camera:
         
     def register_controller(self, flag, controller):
         """
-        Registra un controlador para una flag específica
+        Registra un controlador para una flag específica.
+        
+        Args:
+            flag: Flag del enum Flags que activará este controlador
+            controller: Instancia del controlador que procesará los gestos
         """
         self.controllers[flag] = controller
         
     def is_hand_open(self, landmarks):
+        """
+        Determina si una mano está abierta (4 o más dedos levantados).
+        
+        Args:
+            landmarks: Landmarks de la mano detectada
+            
+        Returns:
+            bool: True si la mano está abierta, False en caso contrario
+        """
         fingers = self.count_fingers(landmarks)
         return sum(fingers) >= 4
         
@@ -50,15 +94,30 @@ class Camera:
         
     def detect_flag(self, hand_landmarks_list, hand_labels):
         """
-        Detecta qué flag/gesto se está realizando basado en las manos detectadas
-        Retorna la flag detectada o None
+        Detecta qué flag/gesto se está realizando basado en las manos detectadas.
+        Retorna la flag detectada o None.
+        
+        Gestos reconocidos:
+        - BRIGHTNESS: Mano izquierda con 1 dedo levantado
+          (Control de brillo de pantalla)
+        
+        - APPLICATION: Mano izquierda con 3 dedos levantados
+          (Abrir aplicaciones específicas)
+        
+        Returns:
+            Flags or None: La flag del gesto detectado o None si no hay gesto
         """
         # Detectar gesto de brillo: mano izquierda con 1 dedo
         for hand_landmarks, label in zip(hand_landmarks_list, hand_labels):
             if label == "Left":  # Mano izquierda en vista espejo
                 fingers = self.count_fingers(hand_landmarks.landmark)
-                if sum(fingers) == 1:  # Solo un dedo levantado
+                finger_count = sum(fingers)
+                
+                if finger_count == 1:  # Solo un dedo levantado
                     return Flags.BRIGHTNESS
+                    
+                elif finger_count == 3:  # Tres dedos levantados
+                    return Flags.APPLICATION
         
         # Aquí se pueden agregar más detecciones para otras flags
         # Por ejemplo:
@@ -104,7 +163,16 @@ class Camera:
         
     def run(self):
         """
-        Bucle principal que detecta flags y delega a los controladores específicos
+        Bucle principal que detecta flags y delega a los controladores específicos.
+        
+        Este método:
+        1. Captura frames de la cámara
+        2. Detecta manos y gestos
+        3. Identifica qué flag/modo se activó
+        4. Delega el procesamiento al controlador correspondiente
+        5. Muestra la información visual (si show_window=True)
+        
+        Presiona 'q' para salir del bucle.
         """
         frame_count = 0  # Para mostrar información periódica en modo silencioso
         
@@ -159,7 +227,8 @@ class Camera:
     
     def release(self):
         """
-        Libera los recursos de la cámara
+        Libera los recursos de la cámara y cierra las ventanas.
+        Se llama automáticamente al finalizar el bucle principal.
         """
         self.cap.release()
         if self.show_window:
