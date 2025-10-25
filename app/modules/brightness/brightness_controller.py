@@ -3,7 +3,22 @@ from app.utils.flags import Flags
 from core.modules.brightness.brightness import Brightness
 
 class BrightnessController:
+    """
+    Controlador para ajustar el brillo de pantalla mediante gestos.
+    
+    Gestos reconocidos:
+    - Mano izquierda con 1 dedo: Activa el modo de control de brillo
+    - Mano izquierda con 1 dedo + mano derecha abierta (4+ dedos): Sube el brillo
+    - Mano izquierda con 1 dedo + mano derecha cerrada: Baja el brillo
+    
+    El brillo se ajusta en pasos de 2% y se sincroniza con el sistema operativo.
+    """
+    
     def __init__(self):
+        """
+        Inicializa el controlador de brillo.
+        Obtiene el brillo actual del sistema y configura los parámetros.
+        """
         # Usar la clase Brightness del core para controlar realmente el brillo
         self.brightness_core = Brightness()
         # Obtener el brillo actual del sistema
@@ -24,7 +39,15 @@ class BrightnessController:
         
     def process_gesture(self, frame, hand_landmarks_list, hand_labels):
         """
-        Procesa los gestos específicos de brillo y retorna el frame modificado y mensaje
+        Procesa los gestos específicos de brillo y retorna el frame modificado y mensaje.
+        
+        Args:
+            frame: Frame de la cámara
+            hand_landmarks_list: Lista de landmarks de las manos detectadas
+            hand_labels: Lista de etiquetas (Left/Right) de las manos
+            
+        Returns:
+            tuple: (frame modificado, mensaje de estado)
         """
         # Sincronizar con el brillo actual del sistema ocasionalmente
         # (evitar hacerlo en cada frame para no impactar el rendimiento)
@@ -48,8 +71,15 @@ class BrightnessController:
     def detect_brightness_gesture(self, hand_landmarks_list, hand_labels):
         """
         Detecta gestos específicos para el control de brillo:
-        - Mano izquierda con 1 dedo + mano derecha abierta: subir brillo
-        - Mano izquierda con 1 dedo + mano derecha cerrada: bajar brillo
+        - Mano izquierda con 1 dedo + mano derecha abierta (4+ dedos): Subir brillo
+        - Mano izquierda con 1 dedo + mano derecha cerrada: Bajar brillo
+        
+        Args:
+            hand_landmarks_list: Lista de landmarks de las manos detectadas
+            hand_labels: Lista de etiquetas (Left/Right) de las manos
+            
+        Returns:
+            tuple: (gesto_detectado, mensaje)
         """
         left_hand_detected = False
         right_hand_detected = False
@@ -82,7 +112,13 @@ class BrightnessController:
     
     def count_fingers(self, landmarks):
         """
-        Método helper para contar dedos (copiado de Camera para no crear dependencia)
+        Cuenta el número de dedos levantados en una mano.
+        
+        Args:
+            landmarks: Landmarks de la mano detectada
+            
+        Returns:
+            list: Lista con 1 (levantado) o 0 (no levantado) para cada dedo
         """
         fingers = []
         # Thumb
@@ -100,7 +136,10 @@ class BrightnessController:
         
     def apply_brightness(self):
         """
-        Aplica el brillo al sistema usando la clase Brightness del core
+        Aplica el brillo al sistema usando la clase Brightness del core.
+        
+        Returns:
+            int or None: El valor de brillo aplicado o None si hay error
         """
         try:
             # Aplicar el brillo real al sistema
@@ -113,7 +152,10 @@ class BrightnessController:
     
     def sync_brightness(self):
         """
-        Sincroniza el valor interno con el brillo actual del sistema
+        Sincroniza el valor interno con el brillo actual del sistema.
+        
+        Returns:
+            int: El valor de brillo sincronizado
         """
         try:
             current_brightness = self.brightness_core.getBrightness()
@@ -128,7 +170,10 @@ class BrightnessController:
     
     def get_available_monitors(self):
         """
-        Obtiene la lista de monitores disponibles
+        Obtiene la lista de monitores disponibles.
+        
+        Returns:
+            list: Lista de monitores disponibles
         """
         try:
             monitors = self.brightness_core.getMonitors()
@@ -139,7 +184,14 @@ class BrightnessController:
         
     def draw_brightness_info(self, frame):
         """
-        Dibuja información específica del control de brillo en el frame
+        Dibuja información específica del control de brillo en el frame.
+        Incluye barra de progreso visual y datos del sistema.
+        
+        Args:
+            frame: Frame de la cámara
+            
+        Returns:
+            Frame modificado con la información visual
         """
         # Información principal del brillo
         cv2.putText(frame, f"Brightness: {self.brightness}%", (10, 150), 
