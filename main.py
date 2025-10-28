@@ -10,7 +10,8 @@ Gestos disponibles:
 
 2. Control de Aplicaciones (APPLICATION):
    - Mano izquierda: 3 dedos levantados (activa el modo)
-   - Mano derecha: 1 dedo levantado: Abre Firefox (una sola vez)
+   - Mano derecha con palma abierta (4-5 dedos): Abre Firefox (una vez)
+   - Mano derecha con palma cerrada (puño): Cierra Firefox y reinicia el gesto
 """
 import argparse
 from app.modules.camera.camera import Camera
@@ -31,7 +32,9 @@ def main():
     print()
     print("📋 Gestos disponibles:")
     print("  🔆 BRILLO: Mano izq. 1 dedo + Mano der. abierta/cerrada")
-    print("  🚀 APLICACIONES: Mano izq. 3 dedos + Mano der. 1 dedo (Firefox)")
+    print("  🚀 APLICACIONES:")
+    print("     • Abrir: Mano izq. 3 dedos + Mano der. palma abierta")
+    print("     • Cerrar: Mano izq. 3 dedos + Mano der. palma cerrada (puño)")
     print()
     
     if args.camera:
