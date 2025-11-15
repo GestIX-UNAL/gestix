@@ -14,6 +14,7 @@ class Camera:
     
     Gestos detectados (mano izquierda):
     - 1 dedo levantado: Activa BRIGHTNESS (control de brillo)
+    - 2 dedos levantados: Activa VOLUME (control de volumen)
     - 3 dedos levantados: Activa APPLICATION (control de aplicaciones)
     """
     
@@ -101,6 +102,9 @@ class Camera:
         - BRIGHTNESS: Mano izquierda con 1 dedo levantado
           (Control de brillo de pantalla)
         
+        - VOLUME: Mano izquierda con 2 dedos levantados
+          (Control de volumen del sistema)
+        
         - APPLICATION: Mano izquierda con 3 dedos levantados
           (Abrir aplicaciones específicas)
         
@@ -115,6 +119,9 @@ class Camera:
                 
                 if finger_count == 1:  # Solo un dedo levantado
                     return Flags.BRIGHTNESS
+                
+                elif finger_count == 2:  # Dos dedos levantados
+                    return Flags.VOLUME
                     
                 elif finger_count == 3:  # Tres dedos levantados
                     return Flags.APPLICATION

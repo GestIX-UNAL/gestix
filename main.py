@@ -8,7 +8,12 @@ Gestos disponibles:
    - Mano derecha abierta (4+ dedos): Sube el brillo
    - Mano derecha cerrada: Baja el brillo
 
-2. Control de Aplicaciones (APPLICATION):
+2. Control de Volumen (VOLUME):
+   - Mano izquierda: 2 dedos levantados (activa el modo)
+   - Mano derecha abierta (4+ dedos): Sube el volumen
+   - Mano derecha cerrada: Baja el volumen
+
+3. Control de Aplicaciones (APPLICATION):
    - Mano izquierda: 3 dedos levantados (activa el modo)
    - Mano derecha con palma abierta (4-5 dedos): Abre Firefox (una vez)
    - Mano derecha con palma cerrada (puño): Cierra Firefox y reinicia el gesto
@@ -16,6 +21,7 @@ Gestos disponibles:
 import argparse
 from app.modules.camera.camera import Camera
 from app.modules.brightness.brightness_controller import BrightnessController
+from app.modules.volume.volume_controller import VolumeController
 from app.modules.application.application_controller import ApplicationController
 from app.utils.flags import Flags
 
@@ -32,6 +38,7 @@ def main():
     print()
     print("📋 Gestos disponibles:")
     print("  🔆 BRILLO: Mano izq. 1 dedo + Mano der. abierta/cerrada")
+    print("  🔊 VOLUMEN: Mano izq. 2 dedos + Mano der. abierta/cerrada")
     print("  🚀 APLICACIONES:")
     print("     • Abrir: Mano izq. 3 dedos + Mano der. palma abierta")
     print("     • Cerrar: Mano izq. 3 dedos + Mano der. palma cerrada (puño)")
@@ -46,14 +53,17 @@ def main():
         # Crear instancias con el parámetro show_window
         camera = Camera(show_window=args.camera)
         brightness_controller = BrightnessController()
+        volume_controller = VolumeController()
         application_controller = ApplicationController()
         
         # Registrar controladores
         camera.register_controller(Flags.BRIGHTNESS, brightness_controller)
+        camera.register_controller(Flags.VOLUME, volume_controller)
         camera.register_controller(Flags.APPLICATION, application_controller)
         
         print("✅ Sistema iniciado correctamente")
         print("🔆 Controlador de brillo registrado")
+        print("🔊 Controlador de volumen registrado")
         print("🚀 Controlador de aplicaciones registrado")
         
         if not args.camera:
