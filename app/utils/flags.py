@@ -8,6 +8,9 @@ class Flags(Enum):
     - BRIGHTNESS: Mano izquierda con 1 dedo levantado
       Control de brillo de pantalla (subir/bajar con mano derecha)
     
+    - VOLUME: Mano izquierda con 2 dedos levantados
+      Control de volumen del sistema (subir/bajar con mano derecha)
+    
     - APPLICATION: Mano izquierda con 3 dedos levantados
       Abre una aplicación específica (Firefox con mano derecha 1 dedo)
     
@@ -16,6 +19,7 @@ class Flags(Enum):
     - CONTROLLER: Reservado para funcionalidades futuras
     """
     BRIGHTNESS = "BRILLO"
+    VOLUME = "VOLUMEN"
     APPLICATION = "APLICACION"
     WINDOW = "VENTANA"
     CONTROLLER = "CONTROLADOR"
